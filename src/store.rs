@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex, RwLock};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct TicketId(u64);
+pub struct TicketId(pub u64);
 
 #[derive(Clone)]
 pub struct TicketStore {

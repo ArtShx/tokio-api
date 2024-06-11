@@ -1,16 +1,23 @@
 use std::{collections::HashMap, hash::Hash};
+use serde_json::{self, Value};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Request {
     pub method: Method,
     pub path: String,
     pub headers: HashMap<String, String>,
+    pub payload: Value
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Method {
     Get,
     Insert
+}
+
+struct InsertRequest {
+    title: String,
+    description: String
 }
 
 pub fn parse_request(str_request: &str) -> anyhow::Result<Request> {
@@ -56,7 +63,6 @@ pub fn parse_request(str_request: &str) -> anyhow::Result<Request> {
     let headers_range = (3 as usize, nb_params-3);
     let mut headers: HashMap<String, String> = HashMap::new();
     for i in headers_range.0 .. headers_range.1 {
-        println!("Header> {}", parts_prep[i]);
         let keyval: Vec<&str> = parts_prep[i].split(": ").collect();
         if keyval.len() != 2 {
             panic!("Header invalid");
@@ -66,10 +72,12 @@ pub fn parse_request(str_request: &str) -> anyhow::Result<Request> {
             keyval[1].to_string());
     }
 
+    let payload: Value = serde_json::from_str(parts_prep[nb_params-1].as_str())?;
     Ok(Request {
         method,
         path: String::from(path),
-        headers
+        headers,
+        payload
     })
 
 }
